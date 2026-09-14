@@ -1,9 +1,12 @@
 # Imbalanced-Fraud-Analytics: End-to-End Fraud Detection and Explainability Benchmark
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://imbalanced-fraud-analytics.onrender.com/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![CI Tests](https://img.shields.io/badge/CI-Passing-brightgreen.svg)]()
 [![Code Style: Black](https://img.shields.io/badge/Code%20Style-Black-000000.svg)](https://github.com/psf/black)
+
+> **Live Interactive Platform**: Access the deployed research and explainability platform at **[imbalanced-fraud-analytics.onrender.com](https://imbalanced-fraud-analytics.onrender.com/)**.
 
 A production-grade comparative benchmark evaluating **Traditional Machine Learning**, **Deep Neural Networks**, and **Unsupervised Anomaly Detection** on severely imbalanced financial transaction data (284,807 transactions, 0.172% fraud).
 
