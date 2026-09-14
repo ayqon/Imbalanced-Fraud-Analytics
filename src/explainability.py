@@ -38,18 +38,27 @@ def generate_local_explanation(
     shap_vals = explainer.shap_values(sample_df)
 
     if isinstance(shap_vals, list):
-        # In case of binary classification returning [class 0, class 1]
-        shap_array = shap_vals[1][0]
-    else:
+        shap_array = shap_vals[1][0] if len(shap_vals) > 1 else shap_vals[0][0]
+    elif hasattr(shap_vals, 'ndim') and shap_vals.ndim == 3:
+        shap_array = shap_vals[0, :, 1] if shap_vals.shape[2] > 1 else shap_vals[0, :, 0]
+    elif hasattr(shap_vals, 'ndim') and shap_vals.ndim == 2:
         shap_array = shap_vals[0]
+    else:
+        shap_array = np.array(shap_vals).flatten()
 
     feature_impacts = pd.Series(shap_array, index=transaction_series.index)
     sorted_impacts = feature_impacts.sort_values(key=abs, ascending=False)
 
     top_features = sorted_impacts.head(top_n).to_dict()
 
+    expected_val = explainer.expected_value
+    if isinstance(expected_val, (list, np.ndarray)):
+        base_val = float(expected_val[1]) if len(expected_val) > 1 else float(expected_val[0])
+    else:
+        base_val = float(expected_val)
+
     return {
-        'base_value': float(explainer.expected_value if not isinstance(explainer.expected_value, list) else explainer.expected_value[1]),
+        'base_value': base_val,
         'top_contributions': top_features,
         'risk_factors': {k: float(v) for k, v in top_features.items() if v > 0},
         'protective_factors': {k: float(v) for k, v in top_features.items() if v < 0}
