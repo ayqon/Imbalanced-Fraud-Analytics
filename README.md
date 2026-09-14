@@ -8,9 +8,16 @@
 
 > **Live Interactive Platform**: Access the deployed research and explainability platform at **[imbalanced-fraud-analytics.onrender.com](https://imbalanced-fraud-analytics.onrender.com/)**.
 
-A production-grade comparative benchmark evaluating **Traditional Machine Learning**, **Deep Neural Networks**, and **Unsupervised Anomaly Detection** on severely imbalanced financial transaction data (284,807 transactions, 0.172% fraud).
+---
 
-Includes a **modular Python architecture (`src/`)**, **automated unit test suites (`tests/`)**, **interactive Streamlit risk simulation dashboard (`app/`)**, **standalone Web UI (`web/`)**, and **GDPR Article 22-compliant SHAP explainability pipelines**.
+### Executive Summary for Engineering Leads & Recruiters
+
+This repository demonstrates end-to-end Machine Learning Engineering for high-stakes, severely imbalanced financial risk applications:
+
+* **Production Code Quality**: Modular, decoupled Python architecture (`src/`), automated CI test suites (`pytest tests/ -v`), and zero data leakage (standardization and threshold tuning isolated strictly to training/validation folds).
+* **Advanced Imbalance Handling**: Comparative evaluation of SMOTE k-NN interpolation, algorithmic loss reweighting (`scale_pos_weight`), and unsupervised Autoencoder reconstruction modeling on 284,807 real European cardholder transactions (578:1 class ratio).
+* **Explainable AI (XAI) & Compliance**: Implemented TreeSHAP per-transaction attribution to meet European GDPR Article 22 "Right to Explanation" requirements.
+* **Commercial Asymmetric Cost Optimization**: Decision threshold calibration driven by financial loss matrices (balancing fraud chargeback losses vs customer friction costs) rather than uncalibrated F1 scores.
 
 ---
 
