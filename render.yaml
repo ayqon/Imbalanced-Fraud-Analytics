@@ -1,0 +1,16 @@
+services:
+  # 1. Static Web Dashboard (Free, Instant Global CDN)
+  - type: web
+    name: imbalanced-fraud-analytics
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./web
+    pullRequestPreviewsEnabled: false
+
+  # 2. Interactive Python Streamlit App (Free Web Service)
+  - type: web
+    name: fraud-analytics-streamlit
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app/dashboard.py --server.port $PORT --server.address 0.0.0.0
+    plan: free

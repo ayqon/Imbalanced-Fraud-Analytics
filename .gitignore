@@ -1,0 +1,43 @@
+# Environments and Virtualenvs
+.venv/
+env/
+venv/
+ENV/
+.env
+
+# Python Bytecode and Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Raw Large Datasets (Do not commit 66MB+ CSVs to git)
+dataset/
+*.csv
+*.tsv
+*.gz
+*.zip
+*.parquet
+
+# Temporary and Scratch Files
+*.tmp
+*.log
+scratch/
+dump_cells.py
+all_cells.txt
+prepare_ui_data.py
+build_clean_notebook.py
+
+# Jupyter Checkpoints
+.ipynb_checkpoints/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imbalanced-Fraud-Analytics - Research Benchmark & Explainability Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Top Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="app-title-group">
+                    <h1>Imbalanced-Fraud-Analytics</h1>
+                    <span class="app-subtitle">Machine Learning & Anomaly Detection Benchmark on Highly Imbalanced Financial Data</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-meta-pill">
+                    <span class="meta-label">Dataset</span>
+                    <span class="meta-value">ULB European Cardholders (284,807 rows)</span>
+                </div>
+                <div class="header-meta-pill">
+                    <span class="meta-label">Class Imbalance</span>
+                    <span class="meta-value text-danger">0.172% (578:1)</span>
+                </div>
+                <div class="header-meta-pill">
+                    <span class="meta-label">Best Model</span>
+                    <span class="meta-value text-primary">XGBoost (PR-AUC 0.865)</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Navigation Bar -->
+        <nav class="main-nav">
+            <button class="nav-tab-btn active" data-tab="tab-overview">Dataset & Cohort Overview</button>
+            <button class="nav-tab-btn" data-tab="tab-shap-explorer">Transaction Explorer & SHAP (GDPR Art. 22)</button>
+            <button class="nav-tab-btn" data-tab="tab-benchmark">Model Benchmark Battleground</button>
+            <button class="nav-tab-btn" data-tab="tab-cost-calibration">Threshold Calibration & Cost Matrix</button>
+            <button class="nav-tab-btn" data-tab="tab-methodology">Methodology & Architecture</button>
+        </nav>
+
+        <!-- Main Body -->
+        <main class="content-area">
+
+            <!-- TAB 1: Overview -->
+            <section id="tab-overview" class="tab-pane active">
+                <div class="stats-cards-row">
+                    <div class="stat-card">
+                        <span class="stat-card-title">Total Transaction Cohort</span>
+                        <span id="stat-total-records" class="stat-card-number">284,807</span>
+                        <span class="stat-card-sub">Recorded across 48 hours</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Confirmed Fraud Cases</span>
+                        <span id="stat-fraud-records" class="stat-card-number text-danger">492</span>
+                        <span class="stat-card-sub">0.172% positive class prevalence</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Legitimate Transactions</span>
+                        <span id="stat-legit-records" class="stat-card-number text-success">284,315</span>
+                        <span class="stat-card-sub">99.828% negative class prevalence</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Holdout Test Partition</span>
+                        <span id="stat-test-records" class="stat-card-number text-primary">28,481</span>
+                        <span class="stat-card-sub">10% stratified holdout (49 fraud cases)</span>
+                    </div>
+                </div>
+
+                <div class="two-col-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Global Feature Importance (Real Trained XGBoost)</h2>
+                            <span class="card-subtitle">Gini importance computed across all 30 orthogonal features</span>
+                        </div>
+                        <div class="chart-container" style="height: 380px;">
+                            <canvas id="chart-feature-importance"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Dataset Characteristics & Experimental Strategy</h2>
+                        </div>
+                        <div class="data-table-container">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Specification</th>
+                                        <th>Statistical Rationale</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Feature Space</strong></td>
+                                        <td>V1 - V28 (PCA) + Time + Amount</td>
+                                        <td>Anonymized orthogonal components derived from PCA transformation.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Partitioning</strong></td>
+                                        <td>80% Train / 10% Val / 10% Test</td>
+                                        <td>Stratified split preserving exact 0.172% fraud prevalence across folds.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Standardization</strong></td>
+                                        <td>StandardScaler fitted on Train only</td>
+                                        <td>Zero leakage: prevents test distribution statistics from informing scaler.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Imbalance Strategy</strong></td>
+                                        <td>SMOTE vs scale_pos_weight</td>
+                                        <td>Contrasting synthetic minority interpolation against loss weighting.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Primary Metric</strong></td>
+                                        <td>Precision-Recall AUC (PR-AUC)</td>
+                                        <td>Avoids misleading accuracy inflation in high-imbalance settings.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: Real SHAP Explorer -->
+            <section id="tab-shap-explorer" class="tab-pane">
+                <div class="two-col-grid-explorer">
+                    <!-- Left: Real Test Partition Transactions Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Holdout Test Transactions</h2>
+                                <span class="card-subtitle">Select any real transaction from the test partition to inspect its SHAP breakdown</span>
+                            </div>
+                        </div>
+
+                        <div class="data-table-container" style="max-height: 520px; overflow-y: auto;">
+                            <table class="report-table table-selectable" id="table-real-samples">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction</th>
+                                        <th>Ground Truth</th>
+                                        <th>Amount</th>
+                                        <th>Time</th>
+                                        <th>XGBoost Proba</th>
+                                        <th>Primary Risk Signal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-real-samples">
+                                    <!-- Populated via real_data.json -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Selected Transaction SHAP Explanation -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2>GDPR Article 22 Explanation</h2>
+                                <span class="card-subtitle">Exact TreeSHAP attributions for the selected transaction</span>
+                            </div>
+                            <div id="inspector-badge" class="status-badge badge-fraud">CONFIRMED FRAUD</div>
+                        </div>
+
+                        <div class="sample-meta-grid">
+                            <div class="meta-box">
+                                <span class="meta-box-label">Transaction ID</span>
+                                <span id="meta-tx-id" class="meta-box-val text-mono">-</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-box-label">Transaction Amount</span>
+                                <span id="meta-tx-amount" class="meta-box-val">-</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-box-label">Timestamp Elapsed</span>
+                                <span id="meta-tx-time" class="meta-box-val">-</span>
+                            </div>
+                            <div class="meta-box">
+                                <span class="meta-box-label">XGBoost Fraud Score</span>
+                                <span id="meta-tx-proba" class="meta-box-val text-mono text-danger">-</span>
+                            </div>
+                        </div>
+
+                        <div class="chart-container" style="height: 280px; margin-bottom: 16px;">
+                            <canvas id="chart-sample-shap"></canvas>
+                        </div>
+
+                        <div class="explanation-box" id="explanation-text-box">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: Model Benchmark -->
+            <section id="tab-benchmark" class="tab-pane">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h2>Consolidated Model Benchmark (Holdout Test Partition)</h2>
+                        <span class="card-subtitle">Evaluated on 28,481 unseen test transactions with decision thresholds tuned on validation partition</span>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Architecture</th>
+                                    <th>Category</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1-Score</th>
+                                    <th>ROC-AUC</th>
+                                    <th>PR-AUC (Avg Precision)</th>
+                                    <th>Inference Latency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="row-highlight">
+                                    <td><strong>XGBoost (scale_pos_weight)</strong></td>
+                                    <td>Gradient Boosted Trees</td>
+                                    <td>0.8846</td>
+                                    <td>0.8163</td>
+                                    <td>0.8491</td>
+                                    <td>0.9782</td>
+                                    <td><strong>0.8654</strong></td>
+                                    <td>0.42 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Random Forest (SMOTE)</strong></td>
+                                    <td>Ensemble Decision Trees</td>
+                                    <td>0.8696</td>
+                                    <td>0.8163</td>
+                                    <td>0.8421</td>
+                                    <td>0.9634</td>
+                                    <td>0.8410</td>
+                                    <td>3.85 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Autoencoder + RF (Hybrid)</strong></td>
+                                    <td>Latent Feature Extraction</td>
+                                    <td>0.8200</td>
+                                    <td>0.8367</td>
+                                    <td>0.8283</td>
+                                    <td>0.9602</td>
+                                    <td>0.8125</td>
+                                    <td>2.10 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Feedforward ANN</strong></td>
+                                    <td>Deep Neural Network</td>
+                                    <td>0.7647</td>
+                                    <td>0.7959</td>
+                                    <td>0.7800</td>
+                                    <td>0.9512</td>
+                                    <td>0.7745</td>
+                                    <td>1.25 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Autoencoder (Anomaly Error)</strong></td>
+                                    <td>Unsupervised Reconstruction</td>
+                                    <td>0.7143</td>
+                                    <td>0.8163</td>
+                                    <td>0.7619</td>
+                                    <td>0.9450</td>
+                                    <td>0.7230</td>
+                                    <td>1.15 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Logistic Regression (SMOTE)</strong></td>
+                                    <td>Linear Classifier Baseline</td>
+                                    <td>0.0582</td>
+                                    <td>0.9184</td>
+                                    <td>0.1095</td>
+                                    <td>0.9687</td>
+                                    <td>0.7120</td>
+                                    <td>0.18 ms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>LSTM Sequence (Experimental)</strong></td>
+                                    <td>Recurrent Architecture</td>
+                                    <td>0.6800</td>
+                                    <td>0.6939</td>
+                                    <td>0.6869</td>
+                                    <td>0.9120</td>
+                                    <td>0.6510</td>
+                                    <td>8.40 ms</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="two-col-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>ROC Curve (Real Test Partition)</h2>
+                        </div>
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="chart-real-roc"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Precision-Recall Curve (PR-AUC)</h2>
+                        </div>
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="chart-real-pr"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: Cost Matrix & Threshold Calibration -->
+            <section id="tab-cost-calibration" class="tab-pane">
+                <div class="two-col-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Real Test Partition Confusion Matrix</h2>
+                            <span class="card-subtitle">Exact numbers computed on the 28,481 holdout test transactions</span>
+                        </div>
+
+                        <div class="calibration-controls">
+                            <div class="control-row">
+                                <label for="slider-threshold">Decision Threshold: <span id="label-slider-val" class="text-mono text-primary font-bold">0.50</span></label>
+                                <input type="range" id="slider-threshold" min="0.05" max="0.95" step="0.05" value="0.50">
+                            </div>
+
+                            <div class="cost-param-grid">
+                                <div class="param-box">
+                                    <label for="input-fn-cost">Cost per False Negative (EUR)</label>
+                                    <input type="number" id="input-fn-cost" value="150" min="10" step="10">
+                                    <span class="param-hint">Direct chargeback loss & interchange penalty.</span>
+                                </div>
+                                <div class="param-box">
+                                    <label for="input-fp-cost">Cost per False Positive (EUR)</label>
+                                    <input type="number" id="input-fp-cost" value="3.0" min="0.5" step="0.5">
+                                    <span class="param-hint">Customer verification friction & support cost.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cm-display-grid">
+                            <div class="cm-box cm-tn">
+                                <span class="cm-box-label">True Negative (Approved Legit)</span>
+                                <span id="cm-tn-count" class="cm-box-val">28,425</span>
+                                <span class="cm-box-sub">Cost: EUR 0.00</span>
+                            </div>
+                            <div class="cm-box cm-fp">
+                                <span class="cm-box-label">False Positive (False Alarm)</span>
+                                <span id="cm-fp-count" class="cm-box-val text-warn">7</span>
+                                <span id="cm-fp-cost" class="cm-box-sub text-warn">Cost: EUR 21.00</span>
+                            </div>
+                            <div class="cm-box cm-fn">
+                                <span class="cm-box-label">False Negative (Missed Fraud)</span>
+                                <span id="cm-fn-count" class="cm-box-val text-danger">9</span>
+                                <span id="cm-fn-cost" class="cm-box-sub text-danger">Cost: EUR 1,350.00</span>
+                            </div>
+                            <div class="cm-box cm-tp">
+                                <span class="cm-box-label">True Positive (Intercepted Fraud)</span>
+                                <span id="cm-tp-count" class="cm-box-val text-success">40</span>
+                                <span id="cm-tp-saved" class="cm-box-sub text-success">Saved: EUR 6,000.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Total Operational Financial Loss Curve</h2>
+                        </div>
+                        <div class="loss-summary-banner">
+                            <span class="loss-label">Total Financial Loss at Current Threshold</span>
+                            <span id="loss-current-amount" class="loss-val">EUR 1,371.00</span>
+                            <span id="loss-optimal-statement" class="loss-optimal-sub">Optimal Threshold: 0.40 (Minimum Expected Loss: EUR 1,215.00)</span>
+                        </div>
+
+                        <div class="chart-container" style="height: 280px;">
+                            <canvas id="chart-loss-curve"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: Methodology -->
+            <section id="tab-methodology" class="tab-pane">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Research Methodology and Design Decisions</h2>
+                    </div>
+                    <div class="methodology-grid">
+                        <div class="method-card">
+                            <h3>1. Inductive Bias and Tabular Trees</h3>
+                            <p>Tree ensemble models (XGBoost, Random Forest) systematically outperformed Deep Neural Networks (ANN, LSTM). Because the 28 principal component features are already decorrelated, deep hierarchical representations offer little advantage over axis-aligned decision tree splits.</p>
+                        </div>
+                        <div class="method-card">
+                            <h3>2. Data Leakage Prevention</h3>
+                            <p>StandardScaler and SMOTE oversampling were strictly fitted on the training partition. Classification decision thresholds were calibrated exclusively on the validation fold prior to evaluation on the holdout test set.</p>
+                        </div>
+                        <div class="method-card">
+                            <h3>3. Unsupervised Autoencoder Anomaly Detection</h3>
+                            <p>Trained exclusively on legitimate transactions, the Deep Autoencoder provides zero-day detection capability by quantifying reconstruction mean-squared-error (MSE) on unseen attack patterns without relying on historical labels.</p>
+                        </div>
+                        <div class="method-card">
+                            <h3>4. Regulatory Compliance (GDPR Article 22)</h3>
+                            <p>Under European GDPR Article 22 regulations, automated credit and transaction declines require individualized explanations. Using TreeSHAP, the system generates exact per-transaction feature attributions in sub-millisecond latency.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
